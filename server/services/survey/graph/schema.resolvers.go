@@ -11,9 +11,9 @@ import (
 )
 
 // CreateSurvey is the resolver for the createSurvey field.
-func (r *mutationResolver) CreateSurvey(ctx context.Context, input *model.CreateSurveyInput) (*model.Survey, error) {
+func (r *mutationResolver) CreateSurvey(ctx context.Context, input model.CreateSurveyInput) (*model.Survey, error) {
 	svc := dal.NewSurveyService(dal.NewSurveyRepository(r.Db))
-	survey, err := svc.CreateSurvey(ctx, input)
+	survey, err := svc.CreateSurvey(ctx, &input)
 	if err != nil {
 		return nil, err
 	}

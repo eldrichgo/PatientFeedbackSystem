@@ -58,5 +58,5 @@ type Query {
 
 # Mutations
 type Mutation {
-    createSurvey(input: CreateSurveyInput): Survey!
+    createSurvey(input: CreateSurveyInput!): Survey!
 }

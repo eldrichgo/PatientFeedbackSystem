@@ -40,9 +40,21 @@ func (f *FeedbackService) CreateFeedback(ctx context.Context, input *model.Submi
 		})
 	}
 
-	if _, err := f.repo.CreateFeedback(feedback); err != nil {
-		return nil, err
+	return f.repo.CreateFeedback(feedback)
+}
+
+func (f *FeedbackService) GetFeedback(surveyID string) ([]*model.Feedback, error) {
+	if surveyID == "" {
+		return nil, errors.New("survey ID cannot be blank")
 	}
 
-	return feedback, nil
+	return f.repo.GetFeedbacksBySurveyID(surveyID)
+}
+
+func (f *FeedbackService) GetAnswersByFeedbackID(feedbackID string) ([]*model.FeedbackAnswer, error) {
+	if feedbackID == "" {
+		return nil, errors.New("feedback ID cannot be blank")
+	}
+
+	return f.repo.GetAnswersByFeedbackID(feedbackID)
 }

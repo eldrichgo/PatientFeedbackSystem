@@ -61,25 +61,33 @@ func (s *SurveyService) CreateSurvey(ctx context.Context, input *model.CreateSur
 		})
 	}
 
-	if _, err := s.repo.CreateSurvey(survey); err != nil {
-		return nil, err
-	}
-
-	return survey, nil
+	return s.repo.CreateSurvey(survey)
 }
 
 func (s *SurveyService) GetSurveys() ([]*model.Survey, error) {
 	return s.repo.GetSurveys()
 }
 
-func (s *SurveyService) GetSurveyByID(id string) (*model.Survey, error) {
-	return s.repo.GetSurveyByID(id)
+func (s *SurveyService) GetSurveyByID(surveyID string) (*model.Survey, error) {
+	if surveyID == "" {
+		return nil, errors.New("survey ID cannot be blank")
+	}
+
+	return s.repo.GetSurveyByID(surveyID)
 }
 
 func (s *SurveyService) GetQuestionsBySurveyID(surveyID string) ([]*model.Question, error) {
+	if surveyID == "" {
+		return nil, errors.New("survey ID cannot be blank")
+	}
+
 	return s.repo.GetQuestionsBySurveyID(surveyID)
 }
 
 func (s *SurveyService) GetOptionsByQuestionID(questionID string) ([]*model.Option, error) {
+	if questionID == "" {
+		return nil, errors.New("question ID cannot be blank")
+	}
+
 	return s.repo.GetOptionsByQuestionID(questionID)
 }

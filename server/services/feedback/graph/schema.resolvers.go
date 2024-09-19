@@ -6,23 +6,41 @@ package graph
 
 import (
 	"context"
+	"feedback/graph/dal"
 	"feedback/graph/model"
-	"fmt"
 )
 
 // Answers is the resolver for the answers field.
 func (r *feedbackResolver) Answers(ctx context.Context, obj *model.Feedback) ([]*model.FeedbackAnswer, error) {
-	panic(fmt.Errorf("not implemented: Answers - answers"))
+	svc := dal.NewFeedbackService(dal.NewFeedbackRepository(r.Db))
+	answers, err := svc.GetAnswersByFeedbackID(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return answers, nil
 }
 
 // SubmitFeedback is the resolver for the submitFeedback field.
 func (r *mutationResolver) SubmitFeedback(ctx context.Context, input model.SubmitFeedbackInput) (*model.Feedback, error) {
-	panic(fmt.Errorf("not implemented: SubmitFeedback - submitFeedback"))
+	svc := dal.NewFeedbackService(dal.NewFeedbackRepository(r.Db))
+	feedback, err := svc.CreateFeedback(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	return feedback, nil
 }
 
 // Feedback is the resolver for the feedback field.
 func (r *queryResolver) Feedback(ctx context.Context, surveyID string) ([]*model.Feedback, error) {
-	panic(fmt.Errorf("not implemented: Feedback - feedback"))
+	svc := dal.NewFeedbackService(dal.NewFeedbackRepository(r.Db))
+	feedback, err := svc.GetFeedback(surveyID)
+	if err != nil {
+		return nil, err
+	}
+
+	return feedback, nil
 }
 
 // Feedback returns FeedbackResolver implementation.

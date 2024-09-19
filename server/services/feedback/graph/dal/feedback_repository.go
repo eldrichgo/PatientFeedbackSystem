@@ -9,6 +9,7 @@ import (
 type FeedbackRepository interface {
 	CreateFeedback(feedback *model.Feedback) (*model.Feedback, error)
 	GetFeedbacksBySurveyID(surveyID string) ([]*model.Feedback, error)
+	GetAnswersByFeedbackID(feedbackID string) ([]*model.FeedbackAnswer, error)
 }
 
 type Feedbackrepo struct {
@@ -35,4 +36,14 @@ func (f *Feedbackrepo) GetFeedbacksBySurveyID(surveyID string) ([]*model.Feedbac
 	}
 
 	return feedbacks, nil
+}
+
+func (f *Feedbackrepo) GetAnswersByFeedbackID(feedbackID string) ([]*model.FeedbackAnswer, error) {
+	var answers []*model.FeedbackAnswer
+
+	if err := f.db.Where("feedback_id = ?", feedbackID).Find(&answers).Error; err != nil {
+		return nil, err
+	}
+
+	return answers, nil
 }

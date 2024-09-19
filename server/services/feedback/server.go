@@ -32,7 +32,7 @@ func initLogger() logger.Interface {
 }
 
 func main() {
-	dsn := "host=localhost user=postgres password=1234 dbname=SurveyDB port=5432 sslmode=prefer TimeZone=Asia/Shanghai"
+	dsn := "host=localhost user=postgres password=1234 dbname=FeedbackDB port=5432 sslmode=prefer TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: initLogger()})
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)

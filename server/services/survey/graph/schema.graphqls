@@ -1,0 +1,62 @@
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @goTag(
+  key: String!
+  value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+type Survey {
+    id: String! 
+        @goTag(key: "gorm", value: "primaryKey;type:uuid;default:gen_random_uuid()")
+    name: String!
+    description: String
+    questions: [Question!]!
+        @goField(forceResolver: true)
+        @goTag (key: "gorm" value: "foreignKey:SurveyID;references:ID")
+}
+
+input CreateSurveyInput {
+  name: String!
+  description: String
+  questions: [QuestionInput!]! 
+}
+
+input QuestionInput {
+    questionText: String!
+    options: [OptionInput!]!
+}
+
+input OptionInput {
+    optionText: String! 
+}
+
+type Question {
+    id: String! 
+        @goTag(key: "gorm", value: "primaryKey;type:uuid;default:gen_random_uuid()")
+    surveyID: String!
+    questionText: String!
+    options: [Option!]!
+        @goField(forceResolver: true)
+        @goTag (key: "gorm" value: "foreignKey:QuestionID;references:ID")
+}
+
+type Option {
+    id: Int! 
+        @goTag(key: "gorm", value: "primaryKey")
+    questionID: String!
+    optionText: String!
+}
+
+# Queries
+type Query {
+    surveys: [Survey!]!
+    survey(id: String!): Survey
+}
+
+# Mutations
+type Mutation {
+    createSurvey(input: CreateSurveyInput): Survey!
+}

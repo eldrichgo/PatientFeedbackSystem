@@ -1,0 +1,48 @@
+directive @goField(
+  forceResolver: Boolean
+  name: String
+) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @goTag(
+  key: String!
+  value: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+type Feedback {
+  id: String!
+      @goTag(key: "gorm", value: "primaryKey;type:uuid;default:gen_random_uuid()")
+  surveyID: String!
+  userID: String!
+  answers: [FeedbackAnswer!]!
+      @goField(forceResolver: true)
+      @goTag(key: "gorm", value: "foreignKey:FeedbackID;references:ID")
+}
+
+input SubmitFeedbackInput {
+  surveyID: String!
+  userID: String!
+  answers: [FeedbackInput!]!
+}
+
+input FeedbackInput {
+  questionID: String!
+  answer: Int!
+}
+
+type FeedbackAnswer {
+  id: String!
+      @goTag(key: "gorm", value: "primaryKey;type:uuid;default:gen_random_uuid()")
+  feedbackID: String!
+  questionID: String!
+  answer: Int!
+}
+
+# Queries
+type Query {
+  feedback(surveyID: String!): [Feedback!]!
+}
+
+# Mutations
+type Mutation {
+  submitFeedback(input: SubmitFeedbackInput!): Feedback!
+}

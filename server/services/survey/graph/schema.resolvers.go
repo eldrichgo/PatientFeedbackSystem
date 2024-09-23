@@ -11,9 +11,20 @@ import (
 )
 
 // CreateSurvey is the resolver for the createSurvey field.
-func (r *mutationResolver) CreateSurvey(ctx context.Context, input model.CreateSurveyInput) (*model.Survey, error) {
+func (r *mutationResolver) CreateSurvey(ctx context.Context, input model.SurveyInput) (*model.Survey, error) {
 	svc := dal.NewSurveyService(dal.NewSurveyRepository(r.Db))
 	survey, err := svc.CreateSurvey(ctx, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	return survey, nil
+}
+
+// UpdateSurvey is the resolver for the updateSurvey field.
+func (r *mutationResolver) UpdateSurvey(ctx context.Context, id string, input model.SurveyInput) (*model.Survey, error) {
+	svc := dal.NewSurveyService(dal.NewSurveyRepository(r.Db))
+	survey, err := svc.UpdateSurvey(ctx, id, &input)
 	if err != nil {
 		return nil, err
 	}

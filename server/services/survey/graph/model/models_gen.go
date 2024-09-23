@@ -2,12 +2,6 @@
 
 package model
 
-type CreateSurveyInput struct {
-	Name        string           `json:"name"`
-	Description *string          `json:"description,omitempty"`
-	Questions   []*QuestionInput `json:"questions"`
-}
-
 type Mutation struct {
 }
 
@@ -41,4 +35,10 @@ type Survey struct {
 	Name        string      `json:"name"`
 	Description *string     `json:"description,omitempty"`
 	Questions   []*Question `json:"questions" gorm:"foreignKey:SurveyID;references:ID"`
+}
+
+type SurveyInput struct {
+	Name        string           `json:"name"`
+	Description *string          `json:"description,omitempty"`
+	Questions   []*QuestionInput `json:"questions"`
 }

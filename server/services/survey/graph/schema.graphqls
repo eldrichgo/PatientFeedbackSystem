@@ -18,7 +18,7 @@ type Survey {
         @goTag (key: "gorm" value: "foreignKey:SurveyID;references:ID")
 }
 
-input CreateSurveyInput {
+input SurveyInput {
   name: String!
   description: String
   questions: [QuestionInput!]! 
@@ -58,5 +58,6 @@ type Query {
 
 # Mutations
 type Mutation {
-    createSurvey(input: CreateSurveyInput!): Survey!
+    createSurvey(input: SurveyInput!): Survey!
+    updateSurvey(id: String!, input: SurveyInput!): Survey!
 }

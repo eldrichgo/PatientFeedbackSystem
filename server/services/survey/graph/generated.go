@@ -50,7 +50,8 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateSurvey func(childComplexity int, input model.CreateSurveyInput) int
+		CreateSurvey func(childComplexity int, input model.SurveyInput) int
+		UpdateSurvey func(childComplexity int, id string, input model.SurveyInput) int
 	}
 
 	Option struct {
@@ -80,7 +81,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateSurvey(ctx context.Context, input model.CreateSurveyInput) (*model.Survey, error)
+	CreateSurvey(ctx context.Context, input model.SurveyInput) (*model.Survey, error)
+	UpdateSurvey(ctx context.Context, id string, input model.SurveyInput) (*model.Survey, error)
 }
 type QueryResolver interface {
 	Surveys(ctx context.Context) ([]*model.Survey, error)
@@ -122,7 +124,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateSurvey(childComplexity, args["input"].(model.CreateSurveyInput)), true
+		return e.complexity.Mutation.CreateSurvey(childComplexity, args["input"].(model.SurveyInput)), true
+
+	case "Mutation.updateSurvey":
+		if e.complexity.Mutation.UpdateSurvey == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateSurvey_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateSurvey(childComplexity, args["id"].(string), args["input"].(model.SurveyInput)), true
 
 	case "Option.id":
 		if e.complexity.Option.ID == nil {
@@ -228,9 +242,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCreateSurveyInput,
 		ec.unmarshalInputOptionInput,
 		ec.unmarshalInputQuestionInput,
+		ec.unmarshalInputSurveyInput,
 	)
 	first := true
 
@@ -350,15 +364,39 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createSurvey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateSurveyInput
+	var arg0 model.SurveyInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateSurveyInput2surveyᚋgraphᚋmodelᚐCreateSurveyInput(ctx, tmp)
+		arg0, err = ec.unmarshalNSurveyInput2surveyᚋgraphᚋmodelᚐSurveyInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateSurvey_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.SurveyInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNSurveyInput2surveyᚋgraphᚋmodelᚐSurveyInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -444,7 +482,7 @@ func (ec *executionContext) _Mutation_createSurvey(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateSurvey(rctx, fc.Args["input"].(model.CreateSurveyInput))
+		return ec.resolvers.Mutation().CreateSurvey(rctx, fc.Args["input"].(model.SurveyInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -489,6 +527,71 @@ func (ec *executionContext) fieldContext_Mutation_createSurvey(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createSurvey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateSurvey(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateSurvey(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateSurvey(rctx, fc.Args["id"].(string), fc.Args["input"].(model.SurveyInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Survey)
+	fc.Result = res
+	return ec.marshalNSurvey2ᚖsurveyᚋgraphᚋmodelᚐSurvey(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateSurvey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Survey_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Survey_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Survey_description(ctx, field)
+			case "questions":
+				return ec.fieldContext_Survey_questions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Survey", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateSurvey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3012,47 +3115,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateSurveyInput(ctx context.Context, obj interface{}) (model.CreateSurveyInput, error) {
-	var it model.CreateSurveyInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"name", "description", "questions"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Name = data
-		case "description":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Description = data
-		case "questions":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questions"))
-			data, err := ec.unmarshalNQuestionInput2ᚕᚖsurveyᚋgraphᚋmodelᚐQuestionInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Questions = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputOptionInput(ctx context.Context, obj interface{}) (model.OptionInput, error) {
 	var it model.OptionInput
 	asMap := map[string]interface{}{}
@@ -3114,6 +3176,47 @@ func (ec *executionContext) unmarshalInputQuestionInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSurveyInput(ctx context.Context, obj interface{}) (model.SurveyInput, error) {
+	var it model.SurveyInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "description", "questions"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		case "questions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questions"))
+			data, err := ec.unmarshalNQuestionInput2ᚕᚖsurveyᚋgraphᚋmodelᚐQuestionInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Questions = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3144,6 +3247,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createSurvey":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createSurvey(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateSurvey":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateSurvey(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3819,11 +3929,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNCreateSurveyInput2surveyᚋgraphᚋmodelᚐCreateSurveyInput(ctx context.Context, v interface{}) (model.CreateSurveyInput, error) {
-	res, err := ec.unmarshalInputCreateSurveyInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4062,6 +4167,11 @@ func (ec *executionContext) marshalNSurvey2ᚖsurveyᚋgraphᚋmodelᚐSurvey(ct
 		return graphql.Null
 	}
 	return ec._Survey(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSurveyInput2surveyᚋgraphᚋmodelᚐSurveyInput(ctx context.Context, v interface{}) (model.SurveyInput, error) {
+	res, err := ec.unmarshalInputSurveyInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

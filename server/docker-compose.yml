@@ -1,0 +1,50 @@
+services: 
+  survey:
+    build: 
+      context: ./services/survey/bin
+      dockerfile: ../Dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - my_net
+    depends_on:
+      - db
+    restart: always
+
+  feedback:
+    build: 
+      context: ./services/feedback/bin
+      dockerfile: ../Dockerfile
+    ports:
+      - 8082:8080
+    networks:
+      - my_net
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    container_name: db
+    image: postgres:15.7-alpine3.20
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: postgres
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - my_net 
+
+volumes:
+  postgres:
+
+networks:
+  my_net:
+    driver: bridge
